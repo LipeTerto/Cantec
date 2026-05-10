@@ -1,20 +1,71 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Platform, View, StyleSheet } from "react-native";
+import { CarrinhoProvider } from "./src/context/CarrinhoContext";
+
+import SplashScreen from "./src/screens/SplashScreen";
+import WelcomeScreen from "./src/screens/WelcomeScreen";
+import InstituicaoScreen from "./src/screens/InstituicaoScreen";
+import HomeScreen from "./src/screens/HomeScreen";
+import CategoriaScreen from "./src/screens/CategoriaScreen";
+import CarrinhoScreen from "./src/screens/CarrinhoScreen";
+import TokenScreen from "./src/screens/TokenScreen";
+import ConfirmacaoScreen from "./src/screens/ConfirmacaoScreen";
+
+const Stack = createNativeStackNavigator();
+
+function AppNavigator() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Splash" component={SplashScreen} />
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="Instituicao" component={InstituicaoScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Categoria" component={CategoriaScreen} />
+        <Stack.Screen name="Carrinho" component={CarrinhoScreen} />
+        <Stack.Screen name="Token" component={TokenScreen} />
+        <Stack.Screen name="Confirmacao" component={ConfirmacaoScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export default function App() {
+  // No celular, ocupa a tela toda normalmente
+  if (Platform.OS !== "web") {
+    return (
+      <CarrinhoProvider>
+        <AppNavigator />
+      </CarrinhoProvider>
+    );
+  }
+
+  // No navegador, simula um celular centralizado
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={styles.webContainer}>
+      <View style={styles.phoneFrame}>
+        <CarrinhoProvider>
+          <AppNavigator />
+        </CarrinhoProvider>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  webContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#1a1a1a",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "100vh",
+  },
+  phoneFrame: {
+    width: 390,
+    height: 844,
+    overflow: "hidden",
+    borderRadius: 40,
+    boxShadow: "0 0 40px rgba(0,0,0,0.5)",
   },
 });

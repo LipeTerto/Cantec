@@ -5,22 +5,42 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
+import { useState, useEffect, useCallback } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { colors } from "../styles/colors";
-import { instituicoes } from "../data/mockData";
+import { instituicoes as instituicoesMock } from "../data/mockData";
 
 export default function InstituicaoScreen({ navigation }) {
+  const [instituicoes, setInstituicoes] = useState([]);
+
+  // Recarrega sempre que a tela recebe foco (ex: ao voltar da tela de adicionar)
+  useFocusEffect(
+    useCallback(() => {
+      carregarInstituicoes();
+    }, []),
+  );
+
+  async function carregarInstituicoes() {
+    try {
+      const salvas = await AsyncStorage.getItem("instituicoes");
+      const listaExtra = salvas ? JSON.parse(salvas) : [];
+      // Junta as do mockData com as adicionadas pelo usuário
+      setInstituicoes([...instituicoesMock, ...listaExtra]);
+    } catch (e) {
+      setInstituicoes(instituicoesMock);
+    }
+  }
+
   return (
     <View style={styles.container}>
-      {/* Cabeçalho */}
       <View style={styles.header}>
         <Text style={styles.logo}>🍪 cantec</Text>
         <Text style={styles.suaConta}>Sua conta</Text>
       </View>
 
-      {/* Pergunta */}
       <Text style={styles.pergunta}>Qual cantina deseja acessar?</Text>
 
-      {/* Lista de instituições */}
       <FlatList
         data={instituicoes}
         keyExtractor={(item) => item.id.toString()}
@@ -30,20 +50,26 @@ export default function InstituicaoScreen({ navigation }) {
             onPress={() => navigation.navigate("Home", { instituicao: item })}
           >
             <Text style={styles.instituicaoNome}>{item.nome}</Text>
+            {item.cidade && (
+              <Text style={styles.instituicaoCidade}>
+                {item.cidade} - {item.estado}
+              </Text>
+            )}
             <View style={styles.linha} />
           </TouchableOpacity>
         )}
         style={styles.lista}
       />
 
-      {/* Botão adicionar */}
-      <TouchableOpacity style={styles.botaoAdicionar}>
+      <TouchableOpacity
+        style={styles.botaoAdicionar}
+        onPress={() => navigation.navigate("AdicionarInstituicao")}
+      >
         <Text style={styles.botaoAdicionarTexto}>
           adicionar instituição &gt;
         </Text>
       </TouchableOpacity>
 
-      {/* Rodapé */}
       <Text style={styles.rodape}>
         Cantec©2026 - Todos os direitos reservados
       </Text>
@@ -90,6 +116,12 @@ const styles = StyleSheet.create({
   instituicaoNome: {
     fontSize: 16,
     color: colors.textDark,
+    marginBottom: 4,
+  },
+  instituicaoCidade: {
+    fontSize: 12,
+    color: colors.textDark,
+    opacity: 0.6,
     marginBottom: 8,
   },
   linha: {
@@ -103,7 +135,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 30,
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   botaoAdicionarTexto: {
     color: colors.white,

@@ -26,14 +26,14 @@ export default function WelcomeScreen({ navigation }) {
         {/* Botões */}
         <TouchableOpacity
           style={styles.botaoEntrar}
-          onPress={() => navigation.navigate("Instituicao")}
+          onPress={() => navigation.navigate("Login")}
         >
           <Text style={styles.botaoEntrarTexto}>entrar</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.botaoCriar}
-          onPress={() => navigation.navigate("Instituicao")}
+          onPress={() => navigation.navigate("CriarConta")}
         >
           <Text style={styles.botaoCriarTexto}>criar conta</Text>
         </TouchableOpacity>

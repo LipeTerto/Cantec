@@ -2,6 +2,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Platform, View, StyleSheet } from "react-native";
 import { CarrinhoProvider } from "./src/context/CarrinhoContext";
+import { AuthProvider } from "./src/context/AuthContext";
 
 import SplashScreen from "./src/screens/SplashScreen";
 import WelcomeScreen from "./src/screens/WelcomeScreen";
@@ -11,6 +12,10 @@ import CategoriaScreen from "./src/screens/CategoriaScreen";
 import CarrinhoScreen from "./src/screens/CarrinhoScreen";
 import TokenScreen from "./src/screens/TokenScreen";
 import ConfirmacaoScreen from "./src/screens/ConfirmacaoScreen";
+import CriarContaScreen from "./src/screens/CriarContaScreen";
+import LoginScreen from "./src/screens/LoginScreen";
+import AdicionarInstituicaoScreen from "./src/screens/AdicionarInstituicaoScreen";
+import PagamentoScreen from "./src/screens/PagamentoScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +31,13 @@ function AppNavigator() {
         <Stack.Screen name="Carrinho" component={CarrinhoScreen} />
         <Stack.Screen name="Token" component={TokenScreen} />
         <Stack.Screen name="Confirmacao" component={ConfirmacaoScreen} />
+        <Stack.Screen name="CriarConta" component={CriarContaScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen
+          name="AdicionarInstituicao"
+          component={AdicionarInstituicaoScreen}
+        />
+        <Stack.Screen name="Pagamento" component={PagamentoScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -35,9 +47,11 @@ export default function App() {
   // No celular, ocupa a tela toda normalmente
   if (Platform.OS !== "web") {
     return (
-      <CarrinhoProvider>
-        <AppNavigator />
-      </CarrinhoProvider>
+      <AuthProvider>
+        <CarrinhoProvider>
+          <AppNavigator />
+        </CarrinhoProvider>
+      </AuthProvider>
     );
   }
 
@@ -45,9 +59,11 @@ export default function App() {
   return (
     <View style={styles.webContainer}>
       <View style={styles.phoneFrame}>
-        <CarrinhoProvider>
-          <AppNavigator />
-        </CarrinhoProvider>
+        <AuthProvider>
+          <CarrinhoProvider>
+            <AppNavigator />
+          </CarrinhoProvider>
+        </AuthProvider>
       </View>
     </View>
   );

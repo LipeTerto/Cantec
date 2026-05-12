@@ -49,7 +49,10 @@ export default function CategoriaScreen({ route, navigation }) {
             </View>
             <Text style={styles.produtoNome}>{item.nome}</Text>
             <Text style={styles.produtoPreco}>R${item.preco.toFixed(2)}</Text>
-            <TouchableOpacity style={styles.botaoAdd}>
+            <TouchableOpacity
+              style={styles.botaoAdd}
+              onPress={() => adicionarItem(item)}
+            >
               <Text style={styles.botaoAddTexto}>+</Text>
             </TouchableOpacity>
           </View>
@@ -62,13 +65,6 @@ export default function CategoriaScreen({ route, navigation }) {
         onPress={() => navigation.navigate("Carrinho")}
       >
         <Text style={styles.botaoPedidoTexto}>SEU PEDIDO &gt;</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.botaoAdd}
-        onPress={() => adicionarItem(item)}
-      >
-        <Text style={styles.botaoAddTexto}>+</Text>
       </TouchableOpacity>
     </View>
   );

@@ -9,12 +9,12 @@ export function CarrinhoProvider({ children }) {
     setItens((atual) => {
       const existe = atual.find((i) => i.id === produto.id);
       if (existe) {
-        // Se já existe, aumenta a quantidade
+        // Produto já está no carrinho, aumenta a quantidade
         return atual.map((i) =>
           i.id === produto.id ? { ...i, quantidade: i.quantidade + 1 } : i,
         );
       }
-      // Se não existe, adiciona com quantidade 1
+      // Produto novo, adiciona com quantidade 1
       return [...atual, { ...produto, quantidade: 1 }];
     });
   }

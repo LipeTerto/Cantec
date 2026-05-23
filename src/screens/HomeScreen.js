@@ -10,14 +10,27 @@ import {
 import { colors } from "../styles/colors";
 import { produtos, categorias } from "../data/mockData";
 import { useCarrinho } from "../context/CarrinhoContext";
-// ── ADICIONADO ──────────────────────────────────────────────────────────────
 import { registrarClique } from "../utils/clickTracker";
-// ────────────────────────────────────────────────────────────────────────────
+import { useState, useRef } from "react";
+import Toast from "./Toast.js";
 
 export default function HomeScreen({ route, navigation }) {
   const { instituicao } = route.params;
   const destaques = produtos.filter((p) => p.destaque);
   const { adicionarItem } = useCarrinho();
+
+//toast aq
+  const [toastVisivel, setToastVisivel] = useState(false);
+  const [toastMensagem, setToastMensagem] = useState("");
+  const timeoutRef = useRef(null);
+  const mostrarToast = (nome) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setToastMensagem(`✓ adicionado! ao carrinho`);
+    setToastVisivel(false);
+    setTimeout(() => setToastVisivel(true), 10);
+    timeoutRef.current = setTimeout(() => setToastVisivel(false), 2100);
+};
+
 
   return (
     <View style={styles.container}>
@@ -59,10 +72,10 @@ export default function HomeScreen({ route, navigation }) {
               <TouchableOpacity
                 style={styles.botaoAdd}
                 onPress={() => {
-                  // ── ADICIONADO ─────────────────────────────────────────
+         
                   registrarClique("Home", `adicionarDestaque_${item.nome}`);
-                  // ──────────────────────────────────────────────────────
                   adicionarItem(item);
+                  mostrarToast(item.nome);
                 }}
               >
                 <Text style={styles.botaoAddTexto}>+</Text>
@@ -78,9 +91,9 @@ export default function HomeScreen({ route, navigation }) {
               key={cat.id}
               style={styles.categoriaCard}
               onPress={() => {
-                // ── ADICIONADO ───────────────────────────────────────────
+
                 registrarClique("Home", `categoria_${cat.nome}`);
-                // ────────────────────────────────────────────────────────
+          
                 navigation.navigate("Categoria", { categoria: cat });
               }}
             >
@@ -103,16 +116,14 @@ export default function HomeScreen({ route, navigation }) {
       <TouchableOpacity
         style={styles.botaoPedido}
         onPress={() => {
-          // ── ADICIONADO ───────────────────────────────────────────────
           registrarClique("Home", "botaoPedido");
-          // ────────────────────────────────────────────────────────────
           navigation.navigate("Carrinho");
         }}
       >
         <Text style={styles.botaoPedidoTexto}>SEU PEDIDO &gt;</Text>
       </TouchableOpacity>
 
-      {/* ── ADICIONADO: botão Voltar flutuante sobre a foto ───────────────── */}
+
       <TouchableOpacity
         style={styles.botaoVoltar}
         onPress={() => {
@@ -122,7 +133,7 @@ export default function HomeScreen({ route, navigation }) {
       >
         <Text style={styles.botaoVoltarTexto}>{"<"}</Text>
       </TouchableOpacity>
-      {/* ──────────────────────────────────────────────────────────────────── */}
+      <Toast visivel={toastVisivel} msg={toastMensagem} />
     </View>
   );
 }

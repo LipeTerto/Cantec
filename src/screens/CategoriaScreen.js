@@ -6,6 +6,8 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
+import { useState, useRef } from "react";
+import Toast from "./Toast.js";
 import { colors } from "../styles/colors";
 import { produtos, imagens } from "../data/mockData";
 import { useCarrinho } from "../context/CarrinhoContext";
@@ -16,6 +18,18 @@ export default function CategoriaScreen({ route, navigation }) {
     (p) => p.categoriaId === categoria.id,
   );
   const { adicionarItem } = useCarrinho();
+
+//toast aq
+  const [toastVisivel, setToastVisivel] = useState(false);
+  const [toastMensagem, setToastMensagem] = useState("");
+  const timeoutRef = useRef(null);
+  const mostrarToast = (nome) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setToastMensagem(`✓ adicionado! ao carrinho`);
+    setToastVisivel(false);
+    setTimeout(() => setToastVisivel(true), 10);
+    timeoutRef.current = setTimeout(() => setToastVisivel(false), 2100);
+};
 
   return (
     <View style={styles.container}>
@@ -51,7 +65,9 @@ export default function CategoriaScreen({ route, navigation }) {
             <Text style={styles.produtoPreco}>R${item.preco.toFixed(2)}</Text>
             <TouchableOpacity
               style={styles.botaoAdd}
-              onPress={() => adicionarItem(item)}
+              onPress={() => {adicionarItem(item);
+              mostrarToast(item.nome);
+              }}
             >
               <Text style={styles.botaoAddTexto}>+</Text>
             </TouchableOpacity>
@@ -66,6 +82,9 @@ export default function CategoriaScreen({ route, navigation }) {
       >
         <Text style={styles.botaoPedidoTexto}>SEU PEDIDO &gt;</Text>
       </TouchableOpacity>
+
+       <Toast visivel={toastVisivel} msg={toastMensagem} />
+
     </View>
   );
 }

@@ -10,6 +10,9 @@ import {
 import { colors } from "../styles/colors";
 import { produtos, categorias } from "../data/mockData";
 import { useCarrinho } from "../context/CarrinhoContext";
+// ── ADICIONADO ──────────────────────────────────────────────────────────────
+import { registrarClique } from "../utils/clickTracker";
+// ────────────────────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ route, navigation }) {
   const { instituicao } = route.params;
@@ -55,7 +58,12 @@ export default function HomeScreen({ route, navigation }) {
               <Text style={styles.produtoPreco}>R${item.preco.toFixed(2)}</Text>
               <TouchableOpacity
                 style={styles.botaoAdd}
-                onPress={() => adicionarItem(item)}
+                onPress={() => {
+                  // ── ADICIONADO ─────────────────────────────────────────
+                  registrarClique("Home", `adicionarDestaque_${item.nome}`);
+                  // ──────────────────────────────────────────────────────
+                  adicionarItem(item);
+                }}
               >
                 <Text style={styles.botaoAddTexto}>+</Text>
               </TouchableOpacity>
@@ -69,9 +77,12 @@ export default function HomeScreen({ route, navigation }) {
             <TouchableOpacity
               key={cat.id}
               style={styles.categoriaCard}
-              onPress={() =>
-                navigation.navigate("Categoria", { categoria: cat })
-              }
+              onPress={() => {
+                // ── ADICIONADO ───────────────────────────────────────────
+                registrarClique("Home", `categoria_${cat.nome}`);
+                // ────────────────────────────────────────────────────────
+                navigation.navigate("Categoria", { categoria: cat });
+              }}
             >
               {cat.imagem ? (
                 <Image
@@ -91,10 +102,27 @@ export default function HomeScreen({ route, navigation }) {
       {/* Botão fixo Seu Pedido */}
       <TouchableOpacity
         style={styles.botaoPedido}
-        onPress={() => navigation.navigate("Carrinho")}
+        onPress={() => {
+          // ── ADICIONADO ───────────────────────────────────────────────
+          registrarClique("Home", "botaoPedido");
+          // ────────────────────────────────────────────────────────────
+          navigation.navigate("Carrinho");
+        }}
       >
         <Text style={styles.botaoPedidoTexto}>SEU PEDIDO &gt;</Text>
       </TouchableOpacity>
+
+      {/* ── ADICIONADO: botão Voltar flutuante sobre a foto ───────────────── */}
+      <TouchableOpacity
+        style={styles.botaoVoltar}
+        onPress={() => {
+          registrarClique("Home", "botaoVoltar");
+          navigation.goBack();
+        }}
+      >
+        <Text style={styles.botaoVoltarTexto}>{"<"}</Text>
+      </TouchableOpacity>
+      {/* ──────────────────────────────────────────────────────────────────── */}
     </View>
   );
 }
@@ -208,4 +236,24 @@ const styles = StyleSheet.create({
     height: 50,
     marginBottom: 8,
   },
+  // ── ADICIONADO ────────────────────────────────────────────────────────────
+  botaoVoltar: {
+    position: "absolute",
+    top: 48,
+    left: 16,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  botaoVoltarTexto: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: colors.textDark,
+    lineHeight: 24,
+  },
+  // ─────────────────────────────────────────────────────────────────────────
 });

@@ -5,14 +5,21 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { colors } from "../styles/colors";
 import { instituicoes as instituicoesMock } from "../data/mockData";
+// ── ADICIONADO ──────────────────────────────────────────────────────────────
+import { useAuth } from "../context/AuthContext";
+import { registrarClique } from "../utils/clickTracker";
+// ────────────────────────────────────────────────────────────────────────────
 
 export default function InstituicaoScreen({ navigation }) {
   const [instituicoes, setInstituicoes] = useState([]);
+  // ── ADICIONADO ────────────────────────────────────────────────────────────
+  const { sair } = useAuth();
+  // ─────────────────────────────────────────────────────────────────────────
 
   // Recarrega sempre que a tela recebe foco (ex: ao voltar da tela de adicionar)
   useFocusEffect(
@@ -32,11 +39,23 @@ export default function InstituicaoScreen({ navigation }) {
     }
   }
 
+  // ── ADICIONADO ────────────────────────────────────────────────────────────
+  async function handleSair() {
+    await registrarClique("Instituicao", "botaoSair");
+    await sair();
+    navigation.reset({ index: 0, routes: [{ name: "Welcome" }] });
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.logo}>🍪 cantec</Text>
-        <Text style={styles.suaConta}>Sua conta</Text>
+        {/* ── MODIFICADO: "Sua conta" virou botão de Sair ───────────────── */}
+        <TouchableOpacity onPress={handleSair}>
+          <Text style={styles.suaConta}>Sair</Text>
+        </TouchableOpacity>
+        {/* ────────────────────────────────────────────────────────────────── */}
       </View>
 
       <Text style={styles.pergunta}>Qual cantina deseja acessar?</Text>
@@ -47,7 +66,12 @@ export default function InstituicaoScreen({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.instituicaoItem}
-            onPress={() => navigation.navigate("Home", { instituicao: item })}
+            onPress={() => {
+              // ── ADICIONADO ───────────────────────────────────────────────
+              registrarClique("Instituicao", `selecionarInstituicao_${item.nome}`);
+              // ─────────────────────────────────────────────────────────────
+              navigation.navigate("Home", { instituicao: item });
+            }}
           >
             <Text style={styles.instituicaoNome}>{item.nome}</Text>
             {item.cidade && (
@@ -63,12 +87,26 @@ export default function InstituicaoScreen({ navigation }) {
 
       <TouchableOpacity
         style={styles.botaoAdicionar}
-        onPress={() => navigation.navigate("AdicionarInstituicao")}
+        onPress={() => {
+          // ── ADICIONADO ─────────────────────────────────────────────────
+          registrarClique("Instituicao", "botaoAdicionarInstituicao");
+          // ───────────────────────────────────────────────────────────────
+          navigation.navigate("AdicionarInstituicao");
+        }}
       >
         <Text style={styles.botaoAdicionarTexto}>
           adicionar instituição &gt;
         </Text>
       </TouchableOpacity>
+
+      {/* ── ADICIONADO: link discreto para o relatório ──────────────────── */}
+      <TouchableOpacity
+        style={styles.botaoRelatorio}
+        onPress={() => navigation.navigate("Relatorio")}
+      >
+        <Text style={styles.botaoRelatorioTexto}>📊 Ver mapa de cliques</Text>
+      </TouchableOpacity>
+      {/* ──────────────────────────────────────────────────────────────────── */}
 
       <Text style={styles.rodape}>
         Cantec©2026 - Todos os direitos reservados
@@ -135,13 +173,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 30,
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   botaoAdicionarTexto: {
     color: colors.white,
     fontSize: 15,
     fontWeight: "bold",
   },
+  // ── ADICIONADO ────────────────────────────────────────────────────────────
+  botaoRelatorio: {
+    paddingVertical: 10,
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  botaoRelatorioTexto: {
+    fontSize: 13,
+    color: colors.textDark,
+    opacity: 0.5,
+  },
+  // ─────────────────────────────────────────────────────────────────────────
   rodape: {
     textAlign: "center",
     fontSize: 11,

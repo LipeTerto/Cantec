@@ -16,6 +16,9 @@ import CriarContaScreen from "./src/screens/CriarContaScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import AdicionarInstituicaoScreen from "./src/screens/AdicionarInstituicaoScreen";
 import PagamentoScreen from "./src/screens/PagamentoScreen";
+// ── ADICIONADO ──────────────────────────────────────────────────────────────
+import RelatorioScreen from "./src/screens/RelatorioScreen";
+// ────────────────────────────────────────────────────────────────────────────
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +41,9 @@ function AppNavigator() {
           component={AdicionarInstituicaoScreen}
         />
         <Stack.Screen name="Pagamento" component={PagamentoScreen} />
+        {/* ── ADICIONADO ───────────────────────────────────────────────── */}
+        <Stack.Screen name="Relatorio" component={RelatorioScreen} />
+        {/* ──────────────────────────────────────────────────────────────── */}
       </Stack.Navigator>
     </NavigationContainer>
   );

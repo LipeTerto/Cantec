@@ -84,10 +84,10 @@ const styles = StyleSheet.create({
     minHeight: "100vh",
   },
   phoneFrame: {
-    width: 390,
-    height: 844,
-    overflow: "hidden",
-    borderRadius: 40,
+    width: "100%",
+    maxWidth: 390,
+    height: "100dvh",
+    borderRadius: 0,
     boxShadow: "0 0 40px rgba(0,0,0,0.5)",
   },
 });

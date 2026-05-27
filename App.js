@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Platform, View, StyleSheet } from "react-native";
 import { CarrinhoProvider } from "./src/context/CarrinhoContext";
 import { AuthProvider } from "./src/context/AuthContext";
+import { AdminProvider } from "./src/context/AdminContext";
 
 import SplashScreen from "./src/screens/SplashScreen";
 import WelcomeScreen from "./src/screens/WelcomeScreen";
@@ -16,9 +17,11 @@ import CriarContaScreen from "./src/screens/CriarContaScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import AdicionarInstituicaoScreen from "./src/screens/AdicionarInstituicaoScreen";
 import PagamentoScreen from "./src/screens/PagamentoScreen";
-// ── ADICIONADO ──────────────────────────────────────────────────────────────
-import RelatorioScreen from "./src/screens/RelatorioScreen";
-// ────────────────────────────────────────────────────────────────────────────
+import AdminLoginScreen from "./src/screens/AdminLoginScreen";
+import AdminHomeScreen from "./src/screens/AdminHomeScreen";
+import AdminRelatorioScreen from "./src/screens/AdminRelatorioScreen";
+import AdminProdutosScreen from "./src/screens/AdminProdutosScreen";
+import AdminGraficosScreen from "./src/screens/AdminGraficosScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -36,39 +39,40 @@ function AppNavigator() {
         <Stack.Screen name="Confirmacao" component={ConfirmacaoScreen} />
         <Stack.Screen name="CriarConta" component={CriarContaScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen
-          name="AdicionarInstituicao"
-          component={AdicionarInstituicaoScreen}
-        />
+        <Stack.Screen name="AdicionarInstituicao" component={AdicionarInstituicaoScreen} />
         <Stack.Screen name="Pagamento" component={PagamentoScreen} />
-        {/* ── ADICIONADO ───────────────────────────────────────────────── */}
-        <Stack.Screen name="Relatorio" component={RelatorioScreen} />
-        {/* ──────────────────────────────────────────────────────────────── */}
+        <Stack.Screen name="AdminLogin" component={AdminLoginScreen} />
+        <Stack.Screen name="AdminHome" component={AdminHomeScreen} />
+        <Stack.Screen name="AdminRelatorio" component={AdminRelatorioScreen} />
+        <Stack.Screen name="AdminProdutos" component={AdminProdutosScreen} />
+        <Stack.Screen name="AdminGraficos" component={AdminGraficosScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
 export default function App() {
-  // No celular, ocupa a tela toda normalmente
   if (Platform.OS !== "web") {
     return (
       <AuthProvider>
-        <CarrinhoProvider>
-          <AppNavigator />
-        </CarrinhoProvider>
+        <AdminProvider>
+          <CarrinhoProvider>
+            <AppNavigator />
+          </CarrinhoProvider>
+        </AdminProvider>
       </AuthProvider>
     );
   }
 
-  // No navegador, simula um celular centralizado
   return (
     <View style={styles.webContainer}>
       <View style={styles.phoneFrame}>
         <AuthProvider>
-          <CarrinhoProvider>
-            <AppNavigator />
-          </CarrinhoProvider>
+          <AdminProvider>
+            <CarrinhoProvider>
+              <AppNavigator />
+            </CarrinhoProvider>
+          </AdminProvider>
         </AuthProvider>
       </View>
     </View>

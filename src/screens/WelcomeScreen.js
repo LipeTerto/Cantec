@@ -4,16 +4,13 @@ import { colors } from "../styles/colors";
 export default function WelcomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      {/* Foto superior */}
       <Image
         source={require("../../assets/images/cantina.png")}
         style={styles.foto}
         resizeMode="cover"
       />
 
-      {/* Área inferior */}
       <View style={styles.inferior}>
-        {/* Logo + Nome */}
         <View style={styles.logoContainer}>
           <Image
             source={require("../../assets/images/logo.png")}
@@ -23,7 +20,6 @@ export default function WelcomeScreen({ navigation }) {
           <Text style={styles.nome}>cantec</Text>
         </View>
 
-        {/* Botões */}
         <TouchableOpacity
           style={styles.botaoEntrar}
           onPress={() => navigation.navigate("Login")}
@@ -39,10 +35,9 @@ export default function WelcomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Rodapé */}
-      <Text style={styles.rodape}>
-        Cantec©2026 - Todos os direitos reservados
-      </Text>
+      <TouchableOpacity onPress={() => navigation.navigate("AdminLogin")}>
+        <Text style={styles.rodape}>Cantec©2026 - Todos os direitos reservados</Text>
+      </TouchableOpacity>
     </View>
   );
 }

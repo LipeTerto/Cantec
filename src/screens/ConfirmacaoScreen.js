@@ -8,11 +8,26 @@ import {
 } from "react-native";
 import { colors } from "../styles/colors";
 import { useCarrinho } from "../context/CarrinhoContext";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../config/supabase";
 
 export default function ConfirmacaoScreen({ navigation }) {
   const { itens, total, limparCarrinho } = useCarrinho();
+  const { usuario } = useAuth();
 
-  function concluir() {
+  async function concluir() {
+    if (itens.length > 0) {
+      const vendas = itens.map((item) => ({
+        produto_id: item.id,
+        produto_nome: item.nome,
+        quantidade: item.quantidade,
+        total: item.preco * item.quantidade,
+        user_id: usuario?.email ?? "anonimo",
+        timestamp: Date.now(),
+      }));
+      await supabase.from("vendas").insert(vendas);
+    }
+
     limparCarrinho();
     navigation.reset({
       index: 0,
@@ -22,20 +37,17 @@ export default function ConfirmacaoScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Cabeçalho */}
       <View style={styles.header}>
         <View style={{ width: 24 }} />
         <Text style={styles.titulo}>Seu pedido</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Status Resgatado */}
       <View style={styles.statusContainer}>
         <Text style={styles.statusTexto}>Resgatado!{"\n"}Bom apetite!</Text>
         <Text style={styles.check}>✓</Text>
       </View>
 
-      {/* Lista de itens */}
       <FlatList
         data={itens}
         keyExtractor={(item) => item.id.toString()}
@@ -44,11 +56,7 @@ export default function ConfirmacaoScreen({ navigation }) {
           <View style={styles.itemCard}>
             <View style={styles.itemImagem}>
               {item.imagem ? (
-                <Image
-                  source={item.imagem}
-                  style={styles.img}
-                  resizeMode="contain"
-                />
+                <Image source={item.imagem} style={styles.img} resizeMode="contain" />
               ) : (
                 <Text style={styles.semImagem}>🍽️</Text>
               )}
@@ -64,12 +72,10 @@ export default function ConfirmacaoScreen({ navigation }) {
         )}
       />
 
-      {/* Total */}
       <View style={styles.totalContainer}>
         <Text style={styles.totalTexto}>TOTAL: R${total.toFixed(2)}</Text>
       </View>
 
-      {/* Botão Concluído */}
       <TouchableOpacity style={styles.botaoConcluido} onPress={concluir}>
         <Text style={styles.botaoConcluidoTexto}>CONCLUÍDO</Text>
       </TouchableOpacity>

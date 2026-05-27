@@ -8,14 +8,12 @@ import {
 } from "react-native";
 import { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { buscarCliques, limparCliques } from "../utils/clickTracker";
+import { supabase } from "../config/supabase";
 import { colors } from "../styles/colors";
 
-// Converte ratio (0 a 1) em cor de calor: azul → amarelo → vermelho
 function getCorCalor(ratio) {
   if (ratio <= 0) return "#4A90D9";
   if (ratio >= 1) return "#D93025";
-
   if (ratio < 0.5) {
     const t = ratio * 2;
     const r = Math.round(74 + t * (255 - 74));
@@ -24,33 +22,36 @@ function getCorCalor(ratio) {
     return `rgb(${r}, ${g}, ${b})`;
   } else {
     const t = (ratio - 0.5) * 2;
-    const r = 255;
     const g = Math.round(165 + t * (48 - 165));
-    return `rgb(${r}, ${g}, 0)`;
+    return `rgb(255, ${g}, 0)`;
   }
 }
 
-export default function RelatorioScreen({ navigation }) {
+export default function AdminRelatorioScreen({ navigation }) {
   const [cliques, setCliques] = useState([]);
   const [telaSelecionada, setTelaSelecionada] = useState("Todas");
   const [agrupados, setAgrupados] = useState([]);
   const [telas, setTelas] = useState(["Todas"]);
 
-  // Recarrega os dados toda vez que a tela recebe foco
   useFocusEffect(
     useCallback(() => {
       carregarDados();
-    }, []),
+    }, [])
   );
 
   async function carregarDados() {
-    const dados = await buscarCliques();
-    setCliques(dados);
-    const telasUnicas = ["Todas", ...new Set(dados.map((c) => c.tela))];
-    setTelas(telasUnicas);
+    const { data, error } = await supabase
+      .from("cliques")
+      .select("*")
+      .order("timestamp", { ascending: false });
+
+    if (!error && data) {
+      setCliques(data);
+      const telasUnicas = ["Todas", ...new Set(data.map((c) => c.tela))];
+      setTelas(telasUnicas);
+    }
   }
 
-  // Reagrupa os cliques sempre que os dados ou o filtro mudam
   useEffect(() => {
     const filtrados =
       telaSelecionada === "Todas"
@@ -71,21 +72,20 @@ export default function RelatorioScreen({ navigation }) {
   }, [cliques, telaSelecionada]);
 
   async function handleLimpar() {
-    await limparCliques();
+    await supabase.from("cliques").delete().neq("id", 0);
     setCliques([]);
     setAgrupados([]);
     setTelas(["Todas"]);
   }
 
   const totalFiltrado = cliques.filter(
-    (c) => telaSelecionada === "Todas" || c.tela === telaSelecionada,
+    (c) => telaSelecionada === "Todas" || c.tela === telaSelecionada
   ).length;
 
   const maxCliques = agrupados.length > 0 ? agrupados[0].total : 1;
 
   return (
     <View style={styles.container}>
-      {/* Cabeçalho */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.voltar}>{"<"}</Text>
@@ -96,7 +96,6 @@ export default function RelatorioScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Filtro por tela */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -106,48 +105,32 @@ export default function RelatorioScreen({ navigation }) {
         {telas.map((tela) => (
           <TouchableOpacity
             key={tela}
-            style={[
-              styles.filtroItem,
-              telaSelecionada === tela && styles.filtroItemAtivo,
-            ]}
+            style={[styles.filtroItem, telaSelecionada === tela && styles.filtroItemAtivo]}
             onPress={() => setTelaSelecionada(tela)}
           >
-            <Text
-              style={[
-                styles.filtroTexto,
-                telaSelecionada === tela && styles.filtroTextoAtivo,
-              ]}
-            >
+            <Text style={[styles.filtroTexto, telaSelecionada === tela && styles.filtroTextoAtivo]}>
               {tela}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
-      {/* Total */}
       <Text style={styles.subtotal}>{totalFiltrado} cliques registrados</Text>
 
-      {/* Legenda de calor */}
       <View style={styles.legenda}>
         <Text style={styles.legendaTexto}>Frio</Text>
         <View style={styles.legendaBarra}>
           {[0, 0.25, 0.5, 0.75, 1].map((v) => (
-            <View
-              key={v}
-              style={[styles.legendaBloco, { backgroundColor: getCorCalor(v) }]}
-            />
+            <View key={v} style={[styles.legendaBloco, { backgroundColor: getCorCalor(v) }]} />
           ))}
         </View>
         <Text style={styles.legendaTexto}>Quente</Text>
       </View>
 
-      {/* Lista de calor */}
       {agrupados.length === 0 ? (
         <View style={styles.vazio}>
           <Text style={styles.vazioTexto}>Nenhum clique registrado ainda.</Text>
-          <Text style={styles.vazioSub}>
-            Use o app normalmente e volte aqui para ver os dados.
-          </Text>
+          <Text style={styles.vazioSub}>Use o app normalmente e volte aqui para ver os dados.</Text>
         </View>
       ) : (
         <FlatList
@@ -161,20 +144,11 @@ export default function RelatorioScreen({ navigation }) {
               <View style={styles.itemContainer}>
                 <View style={styles.itemInfo}>
                   <Text style={styles.itemRank}>#{index + 1}</Text>
-                  <Text style={styles.itemNome} numberOfLines={1}>
-                    {item.chave}
-                  </Text>
-                  <Text style={[styles.itemContagem, { color: cor }]}>
-                    {item.total}x
-                  </Text>
+                  <Text style={styles.itemNome} numberOfLines={1}>{item.chave}</Text>
+                  <Text style={[styles.itemContagem, { color: cor }]}>{item.total}x</Text>
                 </View>
                 <View style={styles.barraFundo}>
-                  <View
-                    style={[
-                      styles.barra,
-                      { width: `${Math.max(ratio * 100, 4)}%`, backgroundColor: cor },
-                    ]}
-                  />
+                  <View style={[styles.barra, { width: `${Math.max(ratio * 100, 4)}%`, backgroundColor: cor }]} />
                 </View>
               </View>
             );
@@ -182,9 +156,7 @@ export default function RelatorioScreen({ navigation }) {
         />
       )}
 
-      <Text style={styles.rodape}>
-        Cantec©2026 - Todos os direitos reservados
-      </Text>
+      <Text style={styles.rodape}>Cantec©2026 - Todos os direitos reservados</Text>
     </View>
   );
 }

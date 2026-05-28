@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  Platform,
   ActivityIndicator,
 } from "react-native";
 import { useState, useCallback } from "react";
@@ -13,7 +14,7 @@ import { BarChart } from "react-native-chart-kit";
 import { supabase } from "../config/supabase";
 import { colors } from "../styles/colors";
 
-const larguraTela = Dimensions.get("window").width - 48;
+const larguraTela = Platform.OS === "web" ? 342 : Dimensions.get("window").width - 48;
 
 const configGrafico = {
   backgroundGradientFrom: colors.white,

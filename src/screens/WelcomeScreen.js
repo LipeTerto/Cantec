@@ -36,7 +36,8 @@ export default function WelcomeScreen({ navigation }) {
       </View>
 
       <TouchableOpacity onPress={() => navigation.navigate("AdminLogin")}>
-        <Text style={styles.rodape}>Se você é Cantina </Text>
+        <Text style={styles.rodape}>Se você é Cantina</Text>
+        <Text style={styles.rodape}>Cantec©2026 - Todos os direitos reservados</Text>
       </TouchableOpacity>
     </View>
   );
